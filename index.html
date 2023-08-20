@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <header>Blackjack</header>
+    <section id="container-game-buttons" class="section game-buttons-container">
+      <button id="button-deal" class="button deal-button">Deal</button>
+      <button id="button-restart" class="button restart-button">
+        Restart Game
+      </button>
+    </section>
+    <section
+      id="container-action-buttons"
+      class="section action-buttons-container"
+    >
+      <button id="button-hit" class="button hit-button">Hit</button>
+      <button id="button-stay" class="button stay-button">Stay</button>
+    </section>
+    <section id="container-game" class="section flex game-container">
+      <div id="container-player" class="player-container player-card-container">
+        <div id="container-player-name" class="player-name">
+          <span id="name-player">Player</span>
+        </div>
+        <div id="container-player-cards" class="cards-container">
+          <div id="player-cards" class="player-cards">
+            <!-- <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div> -->
+          </div>
+        </div>
+        <div id="container-count-player" class="player-count">
+          <span id="count-player"></span>
+        </div>
+      </div>
+      <div id="container-dealer" class="player-container player-card-container">
+        <div id="container-dealer-name" class="player-name">
+          <span id="name-dealer">Dealer</span>
+        </div>
+        <div id="container-dealer-cards" class="cards-container">
+          <div id="dealer-cards" class="player-cards">
+            <!-- <div class="card"></div> -->
+            <!-- <div class="card"></div> -->
+          </div>
+        </div>
+        <div id="container-count-dealer" class="player-count">
+          <span id="count-dealer"></span>
+        </div>
+      </div>
+    </section>
+    <section id="container-modal" class="is-hidden">
+      <div id="container-modal-content" class="modal-content-container">
+        <div id="container-modal-message" class="modal-message-container">
+          <span id="modal-message" class="modal-message"
+            >Blackjack!<br />Congratulations, you've won!</span
+          >
+        </div>
+        <div class="modal-buttons-container">
+          <button id="button-play-again" class="button play-again-button">
+            Play Again
+          </button>
+          <button id="button-exit" class="button exit-button">Exit</button>
+        </div>
+      </div>
+    </section>
+    <script src="index.js"></script>
+  </body>
+</html>
