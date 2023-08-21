@@ -828,3 +828,4 @@ function resetGame() {
 
 //#endregion UI Management
 
+console.log("hello");
