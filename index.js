@@ -5,6 +5,13 @@ function randomNumber() {
   return Math.floor(Math.random() * cardValues.length) + 1;
 }
 
+/**
+ * TODO: possibly best to create global variables of placeholders for storing the index location
+ * of the dealer and player. This game only has the two players and is the player is stored in
+ * the 0 index always but I believe it's good practice not to hardcode items when I remember
+ * and realize to.
+ */ 
+
 // #region Player Setup
 /**
  * Global Variable
@@ -684,6 +691,7 @@ function renderCards() {
    * This allows the cards to appear in succession as if they're being dealt in this manner 
    */
   let cardCount = 0;
+  const dealerPosition = players.findIndex(({ Name }) => Name === "Dealer");
 
   for (let i = 0; i < players[0].Hand.length; i++) {
     for (let j = 0; j < players.length; j++) {
