@@ -827,5 +827,3 @@ function resetGame() {
 // #endregion render reset game UI
 
 //#endregion UI Management
-
-console.log("hello");
