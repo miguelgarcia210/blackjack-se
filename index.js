@@ -790,6 +790,7 @@ function renderCount(activePlayerIndex = null, allPlayers = false, reset = false
 // #endregion render player count UI
 
 // #region render modal UI
+// TODO: adjust the timing for when to display the modal
 function setModalMessage(message = null) {
   modalMessage.innerText = "";
 
