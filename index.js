@@ -10,7 +10,7 @@ function randomNumber() {
  * of the dealer and player. This game only has the two players and is the player is stored in
  * the 0 index always but I believe it's good practice not to hardcode items when I remember
  * and realize to.
- */ 
+ */
 
 // #region Player Setup
 /**
@@ -690,15 +690,19 @@ function renderCards() {
    * The animation-delay property is dynamically set for each card in the createCard fn().
    * This allows the cards to appear in succession as if they're being dealt in this manner 
    */
-  let cardCount = 0;
+  let animationCardCount = 0;
   const dealerPosition = players.findIndex(({ Name }) => Name === "Dealer");
 
   for (let i = 0; i < players[0].Hand.length; i++) {
     for (let j = 0; j < players.length; j++) {
+      // This is to prevent rendering the dealer's second card
+      if (j === dealerPosition && i > 0) {
+        continue;
+      }
       const { Value } = players[j].Hand[i];
       const { Name } = players[j];
-      const card = createCard(i, Value, Name, cardCount);
-      cardCount++;
+      const card = createCard(i, Value, Name, animationCardCount);
+      animationCardCount++;
 
       const playerCardsElement = getPlayerCardsElement(Name);
       playerCardsElement.appendChild(card);
@@ -760,39 +764,62 @@ function renderCount(activePlayerIndex = null, allPlayers = false, reset = false
     }, 1100);
   }
 
+  // if (allPlayers === true) {
+  //   players.forEach((player) => {
+  //     const { Name, Count } = player;
+  //     const playerCountElement = getPlayerCountElement(Name);
+  //     const text = createCountTextNode(Count);
+
+  //     /**
+  //      * Waits until all players have been dealt their cards before updating the Count UI
+  //      * Explanation for 1200ms:
+  //      * The renderCard fn() dynamically assigns the animation delay for each card
+  //      *    explanation for this has been described in the fn() description comment
+  //      * The animation delay for the final card is determined by
+  //      *    the final card index(3) multiplayed by the constant 0.4s resulting in 1.2s
+  //      * Count UI update will execute exactly when the final card has been
+  //      *    rendered and during it's dealCard animation
+  //      */
+  //     setTimeout(() => {
+  //       playerCountElement.classList.add("count-deal");
+  //       playerCountElement.appendChild(text);
+  //     }, 1200);
+
+  //     /**
+  //      * Necessary to remove the card-count class after the animation has been executed
+  //      *    in order to trigger the animation for the next count update 
+  //      * countDeal animation takes 1250ms
+  //      * (Time until countDeal executes) + (Duration of animation) = (Required animation time)
+  //      * 1200ms + 1250ms = 2450ms
+  //      * count-deal class can be removed anytime after 2450ms
+  //      */
+  //     setTimeout(() => {
+  //       playerCountElement.classList.remove("count-deal");
+  //     }, 2500);
+  //   });
+  // }
+
   if (allPlayers === true) {
-    players.forEach((player) => {
+    const dealerPosition = players.findIndex(({ Name }) => Name === "Dealer");
+    for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+      if (playerIndex === dealerPosition) {
+        continue;
+      }
+      const player = players[playerIndex];
       const { Name, Count } = player;
       const playerCountElement = getPlayerCountElement(Name);
       const text = createCountTextNode(Count);
 
-      /**
-       * Waits until all players have been dealt their cards before updating the Count UI
-       * Explanation for 1200ms:
-       * The renderCard fn() dynamically assigns the animation delay for each card
-       *    explanation for this has been described in the fn() description comment
-       * The animation delay for the final card is determined by
-       *    the final card index(3) multiplayed by the constant 0.4s resulting in 1.2s
-       * Count UI update will execute exactly when the final card has been
-       *    rendered and during it's dealCard animation
-       */
+
       setTimeout(() => {
         playerCountElement.classList.add("count-deal");
         playerCountElement.appendChild(text);
       }, 1200);
 
-      /**
-       * Necessary to remove the card-count class after the animation has been executed
-       *    in order to trigger the animation for the next count update 
-       * countDeal animation takes 1250ms
-       * (Time until countDeal executes) + (Duration of animation) = (Required animation time)
-       * 1200ms + 1250ms = 2450ms
-       * count-deal class can be removed anytime after 2450ms
-       */
       setTimeout(() => {
         playerCountElement.classList.remove("count-deal");
       }, 2500);
-    });
+    }
   }
 }
 // #endregion render player count UI
