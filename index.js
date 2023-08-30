@@ -541,6 +541,8 @@ function checkGameStatus() {
   if (Blackjack) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
+
+    // TODO: add if statement to only run this fn() if the dealer's second card element does not exist. May need if statement implementation elsewhere also. Can possibly add if statement inside the fn() also. Too tired to think rn.
     renderDealerCardAndCount(dealerPosition);
 
     if (dealerBlackjack) {
