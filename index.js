@@ -541,6 +541,7 @@ function checkGameStatus() {
   if (Blackjack) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
+    renderDealerCardAndCount(dealerPosition);
 
     if (dealerBlackjack) {
       setModalMessage("PUSH!");
@@ -553,6 +554,7 @@ function checkGameStatus() {
       return displayModal();
     }
 
+    // TODO: handle timing of this because renderDealerCardAndCount() will run first
     if (dealerHit) {
       return handleHit();
     }
@@ -561,6 +563,8 @@ function checkGameStatus() {
   if ((!Blackjack && Stand) && !Bust) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
+    renderDealerCardAndCount(dealerPosition);
+    // TODO: probably need to handle timing on other items also due to renderDealerCardCount()
 
     if (dealerBlackjack) {
       setModalMessage(`Dealer wins!`);
@@ -595,6 +599,8 @@ function checkGameStatus() {
   }
 
   if (Bust) {
+    renderDealerCardAndCount(dealerPosition);
+    // TODO: handle timing due to renderDealerCardAndCount()
     setModalMessage(`Dealer wins!`);
     return displayModal();
   }
@@ -708,6 +714,20 @@ function renderCards() {
       playerCardsElement.appendChild(card);
     }
   }
+}
+
+/**
+ * This fn() encapsulates rendering the dealer's second card in hand along with rendering the dealer's hand count
+ * The purpose of this fn() is to call one fn() rather than two in multiple locations within the checkGameStatus() fn()
+ */
+function renderDealerCardAndCount(dealerPosition) {
+  const dealer = players[dealerPosition];
+  const name = dealer.Name;
+  const cardIndex = dealer.Hand.length - 1;
+  const { Value } = dealer.Hand[cardIndex];
+
+  renderSingleCard(cardIndex, Value, name);
+  renderCount(dealerPosition);
 }
 // #endregion render player cards UI
 
