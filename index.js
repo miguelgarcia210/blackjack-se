@@ -82,7 +82,6 @@ function cardWeightCheck(value) {
 function createNewDeck() {
   let newDeck = [];
 
-  // TODO: change card property names to start capitalized. check references
   for (let i = 0; i < cardValues.length; i++) {
     for (let j = 0; j < cardSuits.length; j++) {
       let weight = cardWeightCheck(cardValues[i]);
@@ -134,6 +133,8 @@ function setDeck() {
   let newDeck = createNewDeck();
   // initializes global variable
   cardDeck = shuffleDeck(newDeck);
+  // Testing deck scenarios
+  // cardDeck = deck4;
 }
 // #endregion Card Deck Management
 
@@ -212,7 +213,7 @@ function handleDeal() {
   // console.log(players[1]);
 }
 
-function handleHit() {
+function handleHit(delay = 0) {
   // may just need this function to JUST give player a new card
   // check count and everything else can be separated from this logic
   /*
@@ -238,9 +239,12 @@ function handleHit() {
 
   updatePlayersCount(false, activePlayerIndex);
   updatePlayerStatus(activePlayer);
-  renderSingleCard(latestCardIndex, latestCardValue, Name);
-  renderCount(activePlayerIndex);
-  checkGameStatus();
+  setTimeout(() => {
+    renderSingleCard(latestCardIndex, latestCardValue, Name);
+    renderCount(activePlayerIndex);
+    checkGameStatus();
+  }, delay);
+  // checkGameStatus();
 }
 // #endregion Game Actions
 
@@ -283,6 +287,51 @@ let hand4 = {
     { Value: "Q", Weight: 10 }, // 24
   ],
 };
+
+// Scenario: Player Wins. Dealer reaches 17
+let deck1 = [
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "7", Suit: "spades", Weight: 7 },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+]
+
+// Scenario: Player wins. Dealer busts
+let deck2 = [
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "9", Suit: "spades", Weight: 9 },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "J", Suit: "spades", Weight: 10 },
+]
+
+// Scenario: PUSH
+let deck3 = [
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "9", Suit: "spades", Weight: 9 },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "J", Suit: "spades", Weight: 10 },
+]
+
+// Scenario: Player Busts
+let deck4 = [
+  { Value: "9", Suit: "spades", Weight: 9 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "J", Suit: "spades", Weight: 10 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+
+]
 // #endregion Testing Hands
 
 // #region Player Management
@@ -541,42 +590,41 @@ function checkGameStatus() {
   if (Blackjack) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
-
-    // TODO: add if statement to only run this fn() if the dealer's second card element does not exist. May need if statement implementation elsewhere also. Can possibly add if statement inside the fn() also. Too tired to think rn.
-    renderDealerCardAndCount(dealerPosition);
+    const dealersSecondCardRendered = renderDealerSecondCardAndCount(dealerPosition, 1250);
+    const hitDelay = dealersSecondCardRendered ? 1250 : 2500;
+    const modalDelay = 2000;
 
     if (dealerBlackjack) {
       setModalMessage("PUSH!");
-      return displayModal();
+      return displayModal(modalDelay);
     }
 
     if ((!dealerBlackjack && dealerStand) || dealerBust) {
       setModalMessage(`Blackjack!
       Congratulations, Player wins!`);
-      return displayModal();
+      return displayModal(modalDelay);
     }
 
-    // TODO: handle timing of this because renderDealerCardAndCount() will run first
     if (dealerHit) {
-      return handleHit();
+      return handleHit(hitDelay);
     }
   }
 
+  // TODO: come back to when STAY button is completed
   if ((!Blackjack && Stand) && !Bust) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
-    renderDealerCardAndCount(dealerPosition);
-    // TODO: probably need to handle timing on other items also due to renderDealerCardCount()
+    const dealersDealtCardsRendered = renderDealerSecondCardAndCount(dealerPosition);
 
     if (dealerBlackjack) {
       setModalMessage(`Dealer wins!`);
-      return displayModal();
+      return displayModal(1500);
     }
 
     if (!dealerBlackjack && dealerStand) {
       if (player.Count > dealer.Count) {
         setModalMessage(`Player wins!`);
-        return displayModal();
+        return displayModal(1500);
       }
 
       if (player.Count < dealer.Count) {
@@ -592,19 +640,22 @@ function checkGameStatus() {
 
     if (dealerBust) {
       setModalMessage(`Player wins!`);
-      return displayModal();
+      return displayModal(1500);
     }
 
-    if (dealerHit) {
+    if (dealerHit && dealersDealtCardsRendered) {
       return handleHit();
+    }
+
+    if (dealerHit && !dealersDealtCardsRendered) {
+      return handleHit(900);
     }
   }
 
   if (Bust) {
-    renderDealerCardAndCount(dealerPosition);
-    // TODO: handle timing due to renderDealerCardAndCount()
+    renderDealerSecondCardAndCount(dealerPosition, 1250);
     setModalMessage(`Dealer wins!`);
-    return displayModal();
+    return displayModal(2750);
   }
 
   if (Hit) {
@@ -722,14 +773,24 @@ function renderCards() {
  * This fn() encapsulates rendering the dealer's second card in hand along with rendering the dealer's hand count
  * The purpose of this fn() is to call one fn() rather than two in multiple locations within the checkGameStatus() fn()
  */
-function renderDealerCardAndCount(dealerPosition) {
+function renderDealerSecondCardAndCount(dealerPosition, delay = 0) {
   const dealer = players[dealerPosition];
   const name = dealer.Name;
   const cardIndex = dealer.Hand.length - 1;
   const { Value } = dealer.Hand[cardIndex];
+  const dealerSecondCard = document.getElementById("Dealer-card-1");
+  let dealersDealtCardsRendered = true;
 
-  renderSingleCard(cardIndex, Value, name);
-  renderCount(dealerPosition);
+  if (dealerSecondCard !== null) {
+    return dealersDealtCardsRendered;
+  }
+
+  setTimeout(() => {
+    renderSingleCard(cardIndex, Value, name);
+    renderCount(dealerPosition);
+  }, delay)
+
+  return !dealersDealtCardsRendered;
 }
 // #endregion render player cards UI
 
@@ -847,7 +908,6 @@ function renderCount(activePlayerIndex = null, allPlayers = false, reset = false
 // #endregion render player count UI
 
 // #region render modal UI
-// TODO: adjust the timing for when to display the modal
 function setModalMessage(message = null) {
   modalMessage.innerText = "";
 
@@ -856,9 +916,20 @@ function setModalMessage(message = null) {
   }
 }
 
-function displayModal() {
-  modalContainer.classList.remove("is-hidden");
-  modalContainer.classList.add("modal-container");
+/**
+ * 
+ * The implementation of the delay is primarily utilized when executed in the checkGameStatus() to allow
+ *    an animation to conclude
+ * Specifically, the card rendering, produced by renderDealerCardAndCount(), will have the CSS animation
+ *    dealCard that is set for a duration of .5 seconds. The delay for this fn() fulfills the UX.
+ * 
+ * @param {number} [delay = 0]
+ */
+function displayModal(delay = 0) {
+  setTimeout(() => {
+    modalContainer.classList.remove("is-hidden");
+    modalContainer.classList.add("modal-container");
+  }, delay)
 }
 
 function hideModal() {
