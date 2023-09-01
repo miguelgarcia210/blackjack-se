@@ -5,6 +5,13 @@ function randomNumber() {
   return Math.floor(Math.random() * cardValues.length) + 1;
 }
 
+/**
+ * TODO: possibly best to create global variables of placeholders for storing the index location
+ * of the dealer and player. This game only has the two players and is the player is stored in
+ * the 0 index always but I believe it's good practice not to hardcode items when I remember
+ * and realize to.
+ */
+
 // #region Player Setup
 /**
  * Global Variable
@@ -75,7 +82,6 @@ function cardWeightCheck(value) {
 function createNewDeck() {
   let newDeck = [];
 
-  // TODO: change card property names to start capitalized. check references
   for (let i = 0; i < cardValues.length; i++) {
     for (let j = 0; j < cardSuits.length; j++) {
       let weight = cardWeightCheck(cardValues[i]);
@@ -127,6 +133,8 @@ function setDeck() {
   let newDeck = createNewDeck();
   // initializes global variable
   cardDeck = shuffleDeck(newDeck);
+  // Testing deck scenarios
+  // cardDeck = deck4;
 }
 // #endregion Card Deck Management
 
@@ -205,7 +213,7 @@ function handleDeal() {
   // console.log(players[1]);
 }
 
-function handleHit() {
+function handleHit(delay = 0) {
   // may just need this function to JUST give player a new card
   // check count and everything else can be separated from this logic
   /*
@@ -231,9 +239,12 @@ function handleHit() {
 
   updatePlayersCount(false, activePlayerIndex);
   updatePlayerStatus(activePlayer);
-  renderSingleCard(latestCardIndex, latestCardValue, Name);
-  renderCount(activePlayerIndex);
-  checkGameStatus();
+  setTimeout(() => {
+    renderSingleCard(latestCardIndex, latestCardValue, Name);
+    renderCount(activePlayerIndex);
+    checkGameStatus();
+  }, delay);
+  // checkGameStatus();
 }
 // #endregion Game Actions
 
@@ -276,6 +287,51 @@ let hand4 = {
     { Value: "Q", Weight: 10 }, // 24
   ],
 };
+
+// Scenario: Player Wins. Dealer reaches 17
+let deck1 = [
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "7", Suit: "spades", Weight: 7 },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+]
+
+// Scenario: Player wins. Dealer busts
+let deck2 = [
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "9", Suit: "spades", Weight: 9 },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "J", Suit: "spades", Weight: 10 },
+]
+
+// Scenario: PUSH
+let deck3 = [
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "9", Suit: "spades", Weight: 9 },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "2", Suit: "spades", Weight: 2 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "J", Suit: "spades", Weight: 10 },
+]
+
+// Scenario: Player Busts
+let deck4 = [
+  { Value: "9", Suit: "spades", Weight: 9 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "Q", Suit: "spades", Weight: 10 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+  { Value: "5", Suit: "spades", Weight: 5 },
+  { Value: "J", Suit: "spades", Weight: 10 },
+  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
+
+]
 // #endregion Testing Hands
 
 // #region Player Management
@@ -534,36 +590,41 @@ function checkGameStatus() {
   if (Blackjack) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
+    const dealersSecondCardRendered = renderDealerSecondCardAndCount(dealerPosition, 1250);
+    const hitDelay = dealersSecondCardRendered ? 1250 : 2500;
+    const modalDelay = 2000;
 
     if (dealerBlackjack) {
       setModalMessage("PUSH!");
-      return displayModal();
+      return displayModal(modalDelay);
     }
 
     if ((!dealerBlackjack && dealerStand) || dealerBust) {
       setModalMessage(`Blackjack!
       Congratulations, Player wins!`);
-      return displayModal();
+      return displayModal(modalDelay);
     }
 
     if (dealerHit) {
-      return handleHit();
+      return handleHit(hitDelay);
     }
   }
 
+  // TODO: come back to when STAY button is completed
   if ((!Blackjack && Stand) && !Bust) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
+    const dealersDealtCardsRendered = renderDealerSecondCardAndCount(dealerPosition);
 
     if (dealerBlackjack) {
       setModalMessage(`Dealer wins!`);
-      return displayModal();
+      return displayModal(1500);
     }
 
     if (!dealerBlackjack && dealerStand) {
       if (player.Count > dealer.Count) {
         setModalMessage(`Player wins!`);
-        return displayModal();
+        return displayModal(1500);
       }
 
       if (player.Count < dealer.Count) {
@@ -579,17 +640,22 @@ function checkGameStatus() {
 
     if (dealerBust) {
       setModalMessage(`Player wins!`);
-      return displayModal();
+      return displayModal(1500);
     }
 
-    if (dealerHit) {
+    if (dealerHit && dealersDealtCardsRendered) {
       return handleHit();
+    }
+
+    if (dealerHit && !dealersDealtCardsRendered) {
+      return handleHit(900);
     }
   }
 
   if (Bust) {
+    renderDealerSecondCardAndCount(dealerPosition, 1250);
     setModalMessage(`Dealer wins!`);
-    return displayModal();
+    return displayModal(2750);
   }
 
   if (Hit) {
@@ -683,19 +749,48 @@ function renderCards() {
    * The animation-delay property is dynamically set for each card in the createCard fn().
    * This allows the cards to appear in succession as if they're being dealt in this manner 
    */
-  let cardCount = 0;
+  let animationCardCount = 0;
+  const dealerPosition = players.findIndex(({ Name }) => Name === "Dealer");
 
   for (let i = 0; i < players[0].Hand.length; i++) {
     for (let j = 0; j < players.length; j++) {
+      // This is to prevent rendering the dealer's second card
+      if (j === dealerPosition && i > 0) {
+        continue;
+      }
       const { Value } = players[j].Hand[i];
       const { Name } = players[j];
-      const card = createCard(i, Value, Name, cardCount);
-      cardCount++;
+      const card = createCard(i, Value, Name, animationCardCount);
+      animationCardCount++;
 
       const playerCardsElement = getPlayerCardsElement(Name);
       playerCardsElement.appendChild(card);
     }
   }
+}
+
+/**
+ * This fn() encapsulates rendering the dealer's second card in hand along with rendering the dealer's hand count
+ * The purpose of this fn() is to call one fn() rather than two in multiple locations within the checkGameStatus() fn()
+ */
+function renderDealerSecondCardAndCount(dealerPosition, delay = 0) {
+  const dealer = players[dealerPosition];
+  const name = dealer.Name;
+  const cardIndex = dealer.Hand.length - 1;
+  const { Value } = dealer.Hand[cardIndex];
+  const dealerSecondCard = document.getElementById("Dealer-card-1");
+  let dealersDealtCardsRendered = true;
+
+  if (dealerSecondCard !== null) {
+    return dealersDealtCardsRendered;
+  }
+
+  setTimeout(() => {
+    renderSingleCard(cardIndex, Value, name);
+    renderCount(dealerPosition);
+  }, delay)
+
+  return !dealersDealtCardsRendered;
 }
 // #endregion render player cards UI
 
@@ -752,39 +847,62 @@ function renderCount(activePlayerIndex = null, allPlayers = false, reset = false
     }, 1100);
   }
 
+  // if (allPlayers === true) {
+  //   players.forEach((player) => {
+  //     const { Name, Count } = player;
+  //     const playerCountElement = getPlayerCountElement(Name);
+  //     const text = createCountTextNode(Count);
+
+  //     /**
+  //      * Waits until all players have been dealt their cards before updating the Count UI
+  //      * Explanation for 1200ms:
+  //      * The renderCard fn() dynamically assigns the animation delay for each card
+  //      *    explanation for this has been described in the fn() description comment
+  //      * The animation delay for the final card is determined by
+  //      *    the final card index(3) multiplayed by the constant 0.4s resulting in 1.2s
+  //      * Count UI update will execute exactly when the final card has been
+  //      *    rendered and during it's dealCard animation
+  //      */
+  //     setTimeout(() => {
+  //       playerCountElement.classList.add("count-deal");
+  //       playerCountElement.appendChild(text);
+  //     }, 1200);
+
+  //     /**
+  //      * Necessary to remove the card-count class after the animation has been executed
+  //      *    in order to trigger the animation for the next count update 
+  //      * countDeal animation takes 1250ms
+  //      * (Time until countDeal executes) + (Duration of animation) = (Required animation time)
+  //      * 1200ms + 1250ms = 2450ms
+  //      * count-deal class can be removed anytime after 2450ms
+  //      */
+  //     setTimeout(() => {
+  //       playerCountElement.classList.remove("count-deal");
+  //     }, 2500);
+  //   });
+  // }
+
   if (allPlayers === true) {
-    players.forEach((player) => {
+    const dealerPosition = players.findIndex(({ Name }) => Name === "Dealer");
+    for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+      if (playerIndex === dealerPosition) {
+        continue;
+      }
+      const player = players[playerIndex];
       const { Name, Count } = player;
       const playerCountElement = getPlayerCountElement(Name);
       const text = createCountTextNode(Count);
 
-      /**
-       * Waits until all players have been dealt their cards before updating the Count UI
-       * Explanation for 1200ms:
-       * The renderCard fn() dynamically assigns the animation delay for each card
-       *    explanation for this has been described in the fn() description comment
-       * The animation delay for the final card is determined by
-       *    the final card index(3) multiplayed by the constant 0.4s resulting in 1.2s
-       * Count UI update will execute exactly when the final card has been
-       *    rendered and during it's dealCard animation
-       */
+
       setTimeout(() => {
         playerCountElement.classList.add("count-deal");
         playerCountElement.appendChild(text);
       }, 1200);
 
-      /**
-       * Necessary to remove the card-count class after the animation has been executed
-       *    in order to trigger the animation for the next count update 
-       * countDeal animation takes 1250ms
-       * (Time until countDeal executes) + (Duration of animation) = (Required animation time)
-       * 1200ms + 1250ms = 2450ms
-       * count-deal class can be removed anytime after 2450ms
-       */
       setTimeout(() => {
         playerCountElement.classList.remove("count-deal");
       }, 2500);
-    });
+    }
   }
 }
 // #endregion render player count UI
@@ -798,9 +916,20 @@ function setModalMessage(message = null) {
   }
 }
 
-function displayModal() {
-  modalContainer.classList.remove("is-hidden");
-  modalContainer.classList.add("modal-container");
+/**
+ * 
+ * The implementation of the delay is primarily utilized when executed in the checkGameStatus() to allow
+ *    an animation to conclude
+ * Specifically, the card rendering, produced by renderDealerCardAndCount(), will have the CSS animation
+ *    dealCard that is set for a duration of .5 seconds. The delay for this fn() fulfills the UX.
+ * 
+ * @param {number} [delay = 0]
+ */
+function displayModal(delay = 0) {
+  setTimeout(() => {
+    modalContainer.classList.remove("is-hidden");
+    modalContainer.classList.add("modal-container");
+  }, delay)
 }
 
 function hideModal() {
@@ -827,5 +956,3 @@ function resetGame() {
 // #endregion render reset game UI
 
 //#endregion UI Management
-
-console.log("hello");
