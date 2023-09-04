@@ -1,5 +1,8 @@
 "use strict";
 
+import * as cardDecks from "./mock-data/card-decks.js";
+// import * as hands from "./mock-data/player-hands";
+
 // Functions
 function randomNumber() {
   return Math.floor(Math.random() * cardValues.length) + 1;
@@ -134,20 +137,21 @@ function setDeck() {
   // initializes global variable
   cardDeck = shuffleDeck(newDeck);
   // Testing deck scenarios
-  // cardDeck = deck4;
+  // cardDeck = cardDecks.set12;
 }
 // #endregion Card Deck Management
 
 // #region Game Actions
 function handleDeal() {
-  console.log("handleDeal running");
   /*
     1. Initialize our players
     2. Create a new deck
-    3. Shuffle the deck
-    4. "Pull" cards from the bottom of the deck and deal to the players
-    5. Remove the cards from the deck sinced they've been "pulled"
-    6. Sum up each players count and assign it to their Count property
+    3. "Pull" cards from the bottom of the deck and deal to the players
+    4. Remove the pulled cards from the deck
+    5. Update players count
+    6. Update players status
+    7. Render the players cards and count
+    8. Check game status
   */
   setPlayers();
   setDeck();
@@ -155,48 +159,23 @@ function handleDeal() {
   let playerDealtCards = [pullCard(1, false), pullCard(3, false)];
   let dealerDealtCards = [pullCard(2, false), pullCard(4, false)];
 
-  // console.log("---------- Dealt Cards ----------");
-  // console.log("Player");
-  // console.log(playerDealtCards);
-  // console.log("Dealer");
-  // console.log(dealerDealtCards);
-  // console.log("--------------------");
-  // console.log("---------- Players Before ----------");
-  // console.log(players);
-
   players.forEach((player) => {
     for (const prop in player) {
       if ((prop === "Name") && (player[prop] === "Dealer")) {
         player.Hand.push(...dealerDealtCards);
-        // console.log(`---------- ${player["Name"]} ---------`);
-        // console.log(player["Hand"]);
-        // console.log("-------------------");
-        // prevents iterating over entire property list
         break;
       }
 
       if ((prop === "Name") && (player[prop] === "Player")) {
         player.Hand.push(...playerDealtCards);
         player.IsActivePlayer = true;
-        // console.log(`---------- ${player["Name"]} ---------`);
-        // console.log(player["Hand"]);
-        // console.log("-------------------");
-        // prevents iterating over entire property list
         break;
       }
     }
-  })
-
-  // console.log("---------- Players After ----------");
-  // console.log(players);
+  });
 
   pullCard(undefined, undefined, 4);
   updatePlayersCount();
-
-  // console.log("---------- Card Count ----------");
-  // console.log(`Name: ${players[0].Name}, Count: ${players[0].Count}`);
-  // console.log(`Name: ${players[1].Name}, Count: ${players[1].Count}`);
-  // console.log("--------------------");
 
   // TODO: check update player status to see if active Player status needs updating at this point
   // TODO: possible fn() refactor to handle situations where all players require updatePlayerStatus or just a single player
@@ -207,24 +186,9 @@ function handleDeal() {
   renderCards();
   renderCount(null, true);
   checkGameStatus();
-
-  // console.log("----------- LOGGED PLAYERS AFTER UPDATED STATUS");
-  // console.log(players[0]);
-  // console.log(players[1]);
 }
 
 function handleHit(delay = 0) {
-  // may just need this function to JUST give player a new card
-  // check count and everything else can be separated from this logic
-  /*
-    Need to know active player
-    Need to have a function to call upon to check player count - countCheck
-    Need to have a function to call upon to check bust
-    1. Determine active player
-    2. "Pull" card from the bottom of the deck
-    3. Assign card to active players hand
-    4. Check player's new count
-  */
   let activePlayerIndex = players.findIndex(
     (player) => player.IsActivePlayer === true
   );
@@ -239,100 +203,11 @@ function handleHit(delay = 0) {
 
   updatePlayersCount(false, activePlayerIndex);
   updatePlayerStatus(activePlayer);
-  setTimeout(() => {
-    renderSingleCard(latestCardIndex, latestCardValue, Name);
-    renderCount(activePlayerIndex);
-    checkGameStatus();
-  }, delay);
-  // checkGameStatus();
+  renderSingleCard(latestCardIndex, latestCardValue, Name);
+  renderCount(activePlayerIndex);
+  checkGameStatus();
 }
 // #endregion Game Actions
-
-// #region Testing Hands
-let hand1 = {
-  Hand: [
-    { Value: "2", Weight: 2 }, // 2
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 13
-    { Value: "K", Weight: 10 }, // 13
-    { Value: "5", Weight: 5 }, // 18
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 19
-    { Value: "4", Weight: 4 }, // 23
-  ],
-};
-
-let hand2 = {
-  Hand: [
-    { Value: "2", Weight: 2 },
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 13
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 14
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 15
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 16
-    { Value: "6", Weight: 6 }, // 12
-  ],
-};
-
-let hand3 = {
-  Hand: [
-    { Value: "2", Weight: 2 },
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 13
-  ],
-};
-
-let hand4 = {
-  Hand: [
-    { Value: "2", Weight: 2 },
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 13
-    { Value: "K", Weight: 10 }, // 13
-    { Value: "A", Weight: { firstWeight: 1, secondWeight: 11 } }, // 14
-    { Value: "Q", Weight: 10 }, // 24
-  ],
-};
-
-// Scenario: Player Wins. Dealer reaches 17
-let deck1 = [
-  { Value: "2", Suit: "spades", Weight: 2 },
-  { Value: "2", Suit: "spades", Weight: 2 },
-  { Value: "7", Suit: "spades", Weight: 7 },
-  { Value: "5", Suit: "spades", Weight: 5 },
-  { Value: "Q", Suit: "spades", Weight: 10 },
-  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
-  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
-]
-
-// Scenario: Player wins. Dealer busts
-let deck2 = [
-  { Value: "Q", Suit: "spades", Weight: 10 },
-  { Value: "Q", Suit: "spades", Weight: 10 },
-  { Value: "9", Suit: "spades", Weight: 9 },
-  { Value: "5", Suit: "spades", Weight: 5 },
-  { Value: "2", Suit: "spades", Weight: 2 },
-  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
-  { Value: "J", Suit: "spades", Weight: 10 },
-]
-
-// Scenario: PUSH
-let deck3 = [
-  { Value: "5", Suit: "spades", Weight: 5 },
-  { Value: "Q", Suit: "spades", Weight: 10 },
-  { Value: "9", Suit: "spades", Weight: 9 },
-  { Value: "5", Suit: "spades", Weight: 5 },
-  { Value: "2", Suit: "spades", Weight: 2 },
-  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
-  { Value: "J", Suit: "spades", Weight: 10 },
-]
-
-// Scenario: Player Busts
-let deck4 = [
-  { Value: "9", Suit: "spades", Weight: 9 },
-  { Value: "Q", Suit: "spades", Weight: 10 },
-  { Value: "Q", Suit: "spades", Weight: 10 },
-  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
-  { Value: "5", Suit: "spades", Weight: 5 },
-  { Value: "J", Suit: "spades", Weight: 10 },
-  { Value: "A", Suit: "spades", Weight: { firstWeight: 1, secondWeight: 11 } },
-
-]
-// #endregion Testing Hands
 
 // #region Player Management
 function sumCount1({ Hand }) {
@@ -479,7 +354,7 @@ function updatePlayersCount(allPlayers = true, activePlayerIndex = null) {
   }
 }
 
-function updatePlayerStatus(player) {
+function updatePlayerStatus(player, stand = false) {
   /*
     1. Accepts the passed player object and destructures the Name from the player
     2. Checks whether the passed player obejct is the Dealer or a Player
@@ -494,6 +369,10 @@ function updatePlayerStatus(player) {
   // console.log(player);
   // console.log("------------------");
   let statusUpdates = Name !== "Dealer" ? checkPlayerCount(player) : checkDealerCount(player);
+
+  if (stand) {
+    statusUpdates.Stand = true;
+  }
 
   for (let i = 0; i < players.length; i++) {
     let selectedPlayer = players[i];
@@ -590,9 +469,9 @@ function checkGameStatus() {
   if (Blackjack) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
-    const dealersSecondCardRendered = renderDealerSecondCardAndCount(dealerPosition, 1250);
-    const hitDelay = dealersSecondCardRendered ? 1250 : 2500;
-    const modalDelay = 2000;
+    const dealersSecondCardRendered = renderDealerSecondCardAndCount(dealerPosition, 2000);
+    const hitDelay = dealersSecondCardRendered ? 1500 : 3500;
+    const modalDelay = dealersSecondCardRendered ? 1500 : 4000;
 
     if (dealerBlackjack) {
       setModalMessage("PUSH!");
@@ -606,58 +485,59 @@ function checkGameStatus() {
     }
 
     if (dealerHit) {
-      return handleHit(hitDelay);
+      return setTimeout(() => {
+        handleHit();
+      }, hitDelay)
     }
   }
 
-  // TODO: come back to when STAY button is completed
   if ((!Blackjack && Stand) && !Bust) {
     player.IsActivePlayer = false;
     dealer.IsActivePlayer = true;
-    const dealersDealtCardsRendered = renderDealerSecondCardAndCount(dealerPosition);
+    const dealersSecondCardRendered = renderDealerSecondCardAndCount(dealerPosition);
+    const hitDelay = dealersSecondCardRendered ? 1600 : 1500;
+    const modalDelay = 1500;
+
 
     if (dealerBlackjack) {
       setModalMessage(`Dealer wins!`);
-      return displayModal(1500);
+      return displayModal(modalDelay);
     }
 
-    if (!dealerBlackjack && dealerStand) {
+    if (!dealerBlackjack && dealerStand && !dealerBust) {
       if (player.Count > dealer.Count) {
         setModalMessage(`Player wins!`);
-        return displayModal(1500);
       }
 
       if (player.Count < dealer.Count) {
         setModalMessage(`Dealer wins!`);
-        return displayModal();
       }
 
       if (player.Count === dealer.Count) {
         setModalMessage(`PUSH!`);
-        return displayModal();
       }
+      return displayModal(modalDelay);
     }
 
     if (dealerBust) {
       setModalMessage(`Player wins!`);
-      return displayModal(1500);
+      return displayModal(modalDelay);
     }
 
-    if (dealerHit && dealersDealtCardsRendered) {
-      return handleHit();
-    }
-
-    if (dealerHit && !dealersDealtCardsRendered) {
-      return handleHit(900);
+    if (dealerHit) {
+      return setTimeout(() => {
+        handleHit();
+      }, hitDelay);
     }
   }
 
   if (Bust) {
-    renderDealerSecondCardAndCount(dealerPosition, 1250);
+    renderDealerSecondCardAndCount(dealerPosition, 1500);
     setModalMessage(`Dealer wins!`);
-    return displayModal(2750);
+    return displayModal(3000);
   }
 
+  // TODO: remove this check. The hit button will handle hit for the player
   if (Hit) {
     // probably just wait for the player to take action
     // probably do something if auto play is incorporated
@@ -692,7 +572,7 @@ exitButton.addEventListener("click", () => {
 // const allButtons = document.querySelectorAll("button");
 const dealButton = document.getElementById("button-deal");
 const hitButton = document.getElementById("button-hit");
-// const stayButton = document.getElementById("button-stay");
+const standButton = document.getElementById("button-stand");
 
 dealButton.addEventListener("click", () => {
   handleDeal();
@@ -702,9 +582,12 @@ hitButton.addEventListener("click", () => {
   handleHit();
 });
 
-// stayButton.addEventListener("click", () => {
-
-// });
+standButton.addEventListener("click", () => {
+  const playerPosition = players.findIndex(({ Name }) => Name === "Player");
+  const player = players[playerPosition];
+  updatePlayerStatus(player, true);
+  checkGameStatus();
+});
 // #endregion buttons
 
 // #endregion elements and event listeners
