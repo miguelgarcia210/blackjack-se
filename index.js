@@ -839,3 +839,10 @@ function resetGame() {
 // #endregion render reset game UI
 
 //#endregion UI Management
+
+document.addEventListener('DOMContentLoaded', function () {
+  let actionButtons = [hitButton, standButton];
+  actionButtons.forEach((btn) => {
+    btn.disabled = true;
+  });
+});
