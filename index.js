@@ -1,6 +1,6 @@
 "use strict";
 
-import * as cardDecks from "./mock-data/card-decks.js";
+// import * as cardDecks from "./mock-data/card-decks.js";
 // import * as hands from "./mock-data/player-hands";
 
 // Functions
@@ -188,7 +188,7 @@ function handleDeal() {
   checkGameStatus();
 }
 
-function handleHit(delay = 0) {
+function handleHit() {
   let activePlayerIndex = players.findIndex(
     (player) => player.IsActivePlayer === true
   );
@@ -205,6 +205,13 @@ function handleHit(delay = 0) {
   updatePlayerStatus(activePlayer);
   renderSingleCard(latestCardIndex, latestCardValue, Name);
   renderCount(activePlayerIndex);
+  checkGameStatus();
+}
+
+function handleStand() {
+  const playerPosition = players.findIndex(({ Name }) => Name === "Player");
+  const player = players[playerPosition];
+  updatePlayerStatus(player, true);
   checkGameStatus();
 }
 // #endregion Game Actions
@@ -365,13 +372,10 @@ function updatePlayerStatus(player, stand = false) {
         1. Update the current iteration player object Status property with the status updates
   */
   const { Name } = player;
-  // console.log("---------- LOG PASSED PLAYER ----------");
-  // console.log(player);
-  // console.log("------------------");
   let statusUpdates = Name !== "Dealer" ? checkPlayerCount(player) : checkDealerCount(player);
 
   if (stand) {
-    statusUpdates.Stand = true;
+    statusUpdates = { ...statusUpdates, Stand: true, Hit: false };
   }
 
   for (let i = 0; i < players.length; i++) {
@@ -382,25 +386,27 @@ function updatePlayerStatus(player, stand = false) {
       if (prop === "Name" && player[prop] === Name) {
         player.Status = { ...player.Status, ...statusUpdates };
         playerUpdated = true;
-        // console.log("---------- LOG UPDATED PLAYER ----------");
-        // console.log(player);
-        // console.log("------------------");
         break; // prevents iterating over entire property list
       }
     }
 
     if (playerUpdated) {
-      // breaks the loop to quit iterating as the player has already been updated
+      // exits the loop since the player has already been updated.
       break;
     }
   }
-  // console.log("---------- LOG CURRENT PLAYER ----------");
-  // console.log(player);
-  // console.log("------------------");
+
+  // refactored version of above for loop
+  // TODO: uncomment and remove above for loop when refactoring occurs
+  // for (const selectedPlayer in players) {
+  //   if (selectedPlayer.Name === Name) {
+  //     selectedPlayer.Status = { ...selectedPlayer.Status, ...statusUpdates };
+  //     break;
+  //   }
+  // }
 }
 
 function checkPlayerCount(player) {
-  // console.log("CHECK PLAYER COUNT USED");
   let { Blackjack, Stand, Bust, Hit } = player.Status;
   const { Count } = player;
 
@@ -537,10 +543,11 @@ function checkGameStatus() {
     return displayModal(3000);
   }
 
-  // TODO: remove this check. The hit button will handle hit for the player
   if (Hit) {
-    // probably just wait for the player to take action
-    // probably do something if auto play is incorporated
+    // TODO: look into refactoring all setTimeouts to just call a fn() that passes a fn() ref and a delay time and the fn() would take those two into a setTimout()
+    setTimeout(() => {
+      disableActionButtons(false);
+    }, 1250)
   }
 }
 
@@ -564,29 +571,40 @@ playAgainButton.addEventListener("click", () => {
 
 exitButton.addEventListener("click", () => {
   resetGame();
+  disableDealButton(false);
 })
 
 // #endregion modal
 
 // #region buttons
-// const allButtons = document.querySelectorAll("button");
 const dealButton = document.getElementById("button-deal");
 const hitButton = document.getElementById("button-hit");
 const standButton = document.getElementById("button-stand");
+const actionButtons = [hitButton, standButton];
+
+function disableActionButtons(disable = true) {
+  actionButtons.forEach((btn) => {
+    disable ? btn.disabled = true : btn.disabled = false;
+  });
+}
+
+function disableDealButton(disable = true) {
+  disable ? dealButton.disabled = true : dealButton.disabled = false;
+}
 
 dealButton.addEventListener("click", () => {
+  disableDealButton();
   handleDeal();
 });
 
 hitButton.addEventListener("click", () => {
+  disableActionButtons();
   handleHit();
 });
 
 standButton.addEventListener("click", () => {
-  const playerPosition = players.findIndex(({ Name }) => Name === "Player");
-  const player = players[playerPosition];
-  updatePlayerStatus(player, true);
-  checkGameStatus();
+  disableActionButtons();
+  handleStand();
 });
 // #endregion buttons
 
@@ -841,8 +859,5 @@ function resetGame() {
 //#endregion UI Management
 
 document.addEventListener('DOMContentLoaded', function () {
-  let actionButtons = [hitButton, standButton];
-  actionButtons.forEach((btn) => {
-    btn.disabled = true;
-  });
+  disableActionButtons();
 });
