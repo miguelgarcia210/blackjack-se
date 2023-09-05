@@ -199,11 +199,11 @@ function handleHit() {
   activePlayer.Hand.push(pulledCard);
 
   const latestCardIndex = activePlayer.Hand.length - 1;
-  const { Value: latestCardValue } = activePlayer.Hand[latestCardIndex];
+  const { Value: latestCardValue, Suit: latestCardSuit } = activePlayer.Hand[latestCardIndex];
 
   updatePlayersCount(false, activePlayerIndex);
   updatePlayerStatus(activePlayer);
-  renderSingleCard(latestCardIndex, latestCardValue, Name);
+  renderSingleCard(latestCardIndex, Name, latestCardValue, latestCardSuit);
   renderCount(activePlayerIndex);
   checkGameStatus();
 }
@@ -615,7 +615,7 @@ function getPlayerCardsElement(name) {
   return document.getElementById(`${String(name).toLowerCase()}-cards`);
 }
 
-function createCard(cardIndex, cardValue, name, animationMultiplier = null) {
+function createCard(cardIndex, name, cardValue, cardSuit = null, animationMultiplier = null) {
   const card = document.createElement('div');
   card.id = `${name}-card-${cardIndex}`;
   card.classList.add("card");
@@ -624,14 +624,39 @@ function createCard(cardIndex, cardValue, name, animationMultiplier = null) {
     card.style.setProperty("--animation-delay", `${animationMultiplier * 0.4}s`);
   }
 
-  const text = document.createTextNode(cardValue);
-  card.appendChild(text);
+  if (cardSuit === null) {
+    const text = document.createTextNode(cardValue);
+    card.appendChild(text);
+  }
+
+  if (cardSuit !== null) {
+    const cardImage = createCardImage(cardValue, cardSuit);
+    card.appendChild(cardImage);
+  }
 
   return card;
 }
 
-function renderSingleCard(cardIndex, cardValue, name) {
-  const card = createCard(cardIndex, cardValue, name, null);
+function createCardImage(cardValue, cardSuit) {
+  const cardValueMap = {
+    "A": "ace",
+    "J": "jack",
+    "Q": "queen",
+    "K": "king",
+  };
+  const cardImageTitle = `${cardValueMap[cardValue] || cardValue}_of_${cardSuit.toLowerCase()}`;
+  const img = new Image();
+
+  img.src = `./images/default/${cardImageTitle}.svg`;
+  img.alt = `${cardImageTitle}`;
+  img.style.width = "100%";
+  img.style.height = "100%";
+
+  return img;
+}
+
+function renderSingleCard(cardIndex, name, cardValue, cardSuit) {
+  const card = createCard(cardIndex, name, cardValue, cardSuit, null);
 
   const playerCardsElement = getPlayerCardsElement(name);
   playerCardsElement.appendChild(card);
@@ -659,9 +684,9 @@ function renderCards() {
       if (j === dealerPosition && i > 0) {
         continue;
       }
-      const { Value } = players[j].Hand[i];
+      const { Value, Suit } = players[j].Hand[i];
       const { Name } = players[j];
-      const card = createCard(i, Value, Name, animationCardCount);
+      const card = createCard(i, Name, Value, Suit, animationCardCount);
       animationCardCount++;
 
       const playerCardsElement = getPlayerCardsElement(Name);
@@ -678,7 +703,7 @@ function renderDealerSecondCardAndCount(dealerPosition, delay = 0) {
   const dealer = players[dealerPosition];
   const name = dealer.Name;
   const cardIndex = dealer.Hand.length - 1;
-  const { Value } = dealer.Hand[cardIndex];
+  const { Value, Suit } = dealer.Hand[cardIndex];
   const dealerSecondCard = document.getElementById("Dealer-card-1");
   let dealersDealtCardsRendered = true;
 
@@ -687,7 +712,7 @@ function renderDealerSecondCardAndCount(dealerPosition, delay = 0) {
   }
 
   setTimeout(() => {
-    renderSingleCard(cardIndex, Value, name);
+    renderSingleCard(cardIndex, name, Value, Suit);
     renderCount(dealerPosition);
   }, delay)
 
