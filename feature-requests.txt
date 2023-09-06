@@ -1,0 +1,19 @@
+add info button somewhere to provide information on how to play Blackjack
+add more deck styles (seasonal, holiday)
+add ability to change deck style through UI
+add ability to change deck style during game?
+- probably need to grab all current rendered cards and update the src attribute
+- possible fade-in attribute can be implemented but most likely not needed for UX
+add dealer hit's on soft 17 setting
+add insurance setting
+add double down setting
+add split setting
+add choice of one, two or 8 decks to be used
+add bets of 5, 10, 25, 50, 100 chips
+add player scoring
+- player can either start at 100, 250, 500, 1000 chips
+update css for different devices
+update the use of the card deck
+- rather than creating a new deck each game. Use the deck until a certain point (shoe). Then create a new deck with a new certain point and deal from there
+rethink modal design and location
+add card overlap enable and disable
