@@ -17,3 +17,7 @@ update the use of the card deck
 - rather than creating a new deck each game. Use the deck until a certain point (shoe). Then create a new deck with a new certain point and deal from there
 rethink modal design and location
 add card overlap enable and disable
+add cheat codes
+- always know what the next two cards would be
+- set chips to "unlimited"
+- secondary cheat code to always get 21
