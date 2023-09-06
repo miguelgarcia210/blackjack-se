@@ -21,3 +21,5 @@ add cheat codes
 - always know what the next two cards would be
 - set chips to "unlimited"
 - secondary cheat code to always get 21
+Change dealer to a second player for local multiplayer
+add dialogue to show from the dealer during different situations (win, lose, blackjack etc..)
