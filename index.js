@@ -630,14 +630,20 @@ function createCard(cardIndex, name, cardValue, cardSuit = null, animationMultip
   }
 
   if (cardSuit !== null) {
-    const cardImage = createCardImage(cardValue, cardSuit);
+    const cardImage = createCardImage(cardValue, cardSuit, "super-mario-nap-02");
     card.appendChild(cardImage);
   }
 
   return card;
 }
 
-function createCardImage(cardValue, cardSuit) {
+function createCardImage(cardValue, cardSuit, deckStyle) {
+  const cardImageMap = {
+    "default": ["default", ".svg"],
+    "super-mario-nap-01": ["super-mario/nap-01", ".png"],
+    "super-mario-nap-02": ["super-mario/nap-02", ".png"],
+  }
+
   const cardValueMap = {
     "A": "ace",
     "J": "jack",
@@ -647,7 +653,7 @@ function createCardImage(cardValue, cardSuit) {
   const cardImageTitle = `${cardValueMap[cardValue] || cardValue}_of_${cardSuit.toLowerCase()}`;
   const img = new Image();
 
-  img.src = `./images/default/${cardImageTitle}.svg`;
+  img.src = `./images/${cardImageMap[deckStyle][0]}/${cardImageTitle}${cardImageMap[deckStyle][1]}`;
   img.alt = `${cardImageTitle}`;
   img.style.width = "100%";
   img.style.height = "100%";
