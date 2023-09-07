@@ -1,6 +1,8 @@
-# 
-## Added
-### 09-06-2023
+# Changes
+### Changed
+### Added 
+---
+### Added [09-06-2023]
 - add two new deck styles to the images directory
 - add logic to handle dynamic deck style switching
 - add CHANGELOG
