@@ -23,3 +23,5 @@ add cheat codes
 - secondary cheat code to always get 21
 Change dealer to a second player for local multiplayer
 add dialogue to show from the dealer during different situations (win, lose, blackjack etc..)
+- mobile css: in landscape ensure hit and stand buttons are under Player card container by default
+- Incorporate player setting to define player orientation preference (lefty/righty). This would move the player container to the right along with game buttons.
