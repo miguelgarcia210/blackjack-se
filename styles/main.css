@@ -1,0 +1,30 @@
+:root {
+    --default-margin: 8px;
+    --view-height: calc(100vh - (var(--default-margin) * 2));
+    --view-width: calc(100vw - (var(--default-margin) * 2));
+    /* Grid portions */
+    --height-row: calc(var(--view-height) / 12);
+    --width-column: calc(var(--view-width) / 12);
+    /* Colors */
+    --green-table: #31572C;
+    --table-light-green: #4F772D;
+    --brown-table: #BC7024;
+    --maroon-table: #7E1023;
+    --button-deal: #fdc500;
+    --button-hit: #29bf12;
+    --light-green: #29bf12;
+    --button-stand: #ff0000;
+    --cards-container: #f4f1de;
+
+
+}
+
+body {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(12, 1fr);
+    height: var(--view-height);
+    margin: var(--default-margin);
+    font-size: 16px;
+    background-color: var(--green-table);
+}

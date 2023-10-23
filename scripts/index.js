@@ -653,7 +653,7 @@ function createCardImage(cardValue, cardSuit, deckStyle) {
   const cardImageTitle = `${cardValueMap[cardValue] || cardValue}_of_${cardSuit.toLowerCase()}`;
   const img = new Image();
 
-  img.src = `./images/${cardImageMap[deckStyle][0]}/${cardImageTitle}${cardImageMap[deckStyle][1]}`;
+  img.src = `./images/card-deck/${cardImageMap[deckStyle][0]}/${cardImageTitle}${cardImageMap[deckStyle][1]}`;
   img.alt = `${cardImageTitle}`;
   img.style.width = "100%";
   img.style.height = "100%";
